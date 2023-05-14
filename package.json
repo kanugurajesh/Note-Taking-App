@@ -1,21 +1,22 @@
 {
   "name": "project",
   "dependencies": {
-    "nanoid": "^3.3.6",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-mde": "11.5.0",
+    "showdown": "1.9.1",
     "react-split": "2.0.13",
-    "showdown": "1.9.1"
+    "nanoid": "3.1.28"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "*",
-    "vite": "latest"
+    "webpack": "^2.0",
+    "babel-core": "^6.0",
+    "babel-loader": "^7.0",
+    "babel-preset-env": "*",
+    "babel-preset-react": "*"
   },
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "webpack",
+    "watch": "webpack -w"
   }
 }
