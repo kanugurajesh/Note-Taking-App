@@ -2,59 +2,68 @@ import React from "react"
 import Sidebar from "../components/Sidebar"
 import Editor from "../components/Editor"
 import Split from "react-split"
-import { nanoid } from "nanoid"
-
+import { onSnapshot, addDoc, doc, deleteDoc, setDoc } from "firebase/firestore"
+import { notesCollection, db } from "../firebase"
 export default function App() {
-  const [notes, setNotes] = React.useState(
-    () => JSON.parse(localStorage.getItem("notes")) || []
-  )
-  const [currentNoteId, setCurrentNoteId] = React.useState(
-    (notes[0] && notes[0].id) || ""
-  )
+  const [notes, setNotes] = React.useState([])
+  const [currentNoteId, setCurrentNoteId] = React.useState("")
+  const [tempNoteText, setTempNoteText] = React.useState("")
+  const currentNote =
+    notes.find(note => note.id === currentNoteId)
+    || notes[0]
 
   React.useEffect(() => {
-    localStorage.setItem("notes", JSON.stringify(notes))
-  }, [notes])
-
-  function createNewNote() {
-    const newNote = {
-      id: nanoid(),
-      body: "# Type your markdown note's title here"
-    }
-    setNotes(prevNotes => [newNote, ...prevNotes])
-    setCurrentNoteId(newNote.id)
-  }
-
-  function updateNote(text) {
-    setNotes(oldNotes => {
-      const newArray = []
-      for (const note of oldNotes) {
-        if (note.id === currentNoteId) {
-          newArray.unshift({ ...note, body: text })
-        } else {
-          newArray.push(note)
-        }
-      }
-      return newArray
+    const unsubscribe = onSnapshot(notesCollection, function (snapshot) {
+      // Sync up our local notes array with the snapshot data
+      const notesArr = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id
+      }))
+      setNotes(notesArr)
     })
+    return unsubscribe
+  }, [])
 
-    // this does not rearrange the notes
-    // setNotes(oldNotes => oldNotes.map(oldNote => {
-    //   return oldNote.id === currentNoteId
-    //     ? { ...oldNote, body: text }
-    //     : oldNote
-    // }))
+  const sortedNotes = notes.sort((a, b) => b.updatedAt - a.updatedAt)
+
+  React.useEffect(() => {
+    if (currentNote) {
+      setTempNoteText(currentNote.body)
+    }
+  }, [currentNote])
+
+  // send the current note's text to the database at a delay of 1s
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (currentNoteId) {
+        updateNote(tempNoteText)
+      }
+    }, 1000)
+    return () => clearTimeout(timeout)
+  }, [tempNoteText])
+
+  async function createNewNote() {
+    const newNote = {
+      body: "# Type your markdown note's title here",
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    }
+    const newNoteRef = await addDoc(notesCollection, newNote)
+    setCurrentNoteId(newNoteRef.id)
   }
 
-  function deleteNote() {
-    setNotes(oldNotes => oldNotes.filter(note => note.id !== currentNoteId))
-    setCurrentNoteId("")
+  async function updateNote(text) {
+    const docRef = doc(db, "notes", currentNoteId)
+    await setDoc(
+      docRef,
+      { body: text, updatedAt: Date.now() },
+      { merge: true }
+    )
   }
 
-  function findCurrentNote() {
-    return notes.find(note => {
-      return note.id === currentNoteId
-    }) || notes[0]
+  async function deleteNote(noteId) {
+    const docRef = doc(db, "notes", noteId)
+    await deleteDoc(docRef)
   }
 
   return (
@@ -68,8 +77,8 @@ export default function App() {
             className="split"
           >
             <Sidebar
-              notes={notes}
-              currentNote={findCurrentNote()}
+              notes={sortedNotes}
+              currentNote={currentNote}
               setCurrentNoteId={setCurrentNoteId}
               newNote={createNewNote}
               deleteNote={deleteNote}
@@ -78,8 +87,8 @@ export default function App() {
               currentNoteId &&
               notes.length > 0 &&
               <Editor
-                currentNote={findCurrentNote()}
-                updateNote={updateNote}
+                tempNoteText={tempNoteText}
+                setTempNoteText={setTempNoteText}
               />
             }
           </Split>
