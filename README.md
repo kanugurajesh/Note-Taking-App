@@ -14,3 +14,20 @@ Welcome to the Note Taking App! This application provides a user-friendly editor
 - **User-friendly Editor:** Enjoy a smooth note-taking experience with our easy-to-use editor.
 - **Categorize Your Notes:** Organize your notes effortlessly by dividing them into multiple categories.
 - **Persistent Data Storage:** Your notes are securely stored in Firebase, ensuring that your data is always accessible.
+
+## How to Use
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/kanugurajesh/Note-Taking-App.git
+   cd Note-Taking-App
+   ```
+2. **Set Up Firebase:**
+  ```bash
+    Create a Firebase project at Firebase Console.
+    Obtain your Firebase configuration and replace the placeholder in config/firebase.js with your actual configuration.
+  ```
+3. **Run the App:**
+   ```bash
+   Open index.html in your preferred web browser.
+   ```
