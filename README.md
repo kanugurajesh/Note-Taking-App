@@ -19,8 +19,8 @@ Welcome to the Note Taking App! This application provides a user-friendly editor
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/kanugurajesh/Note-Taking-App.git
-   cd Note-Taking-App
+     git clone https://github.com/kanugurajesh/Note-Taking-App.git
+     cd Note-Taking-App
    ```
 2. **Set Up Firebase:**
   ```bash
@@ -29,5 +29,5 @@ Welcome to the Note Taking App! This application provides a user-friendly editor
   ```
 3. **Run the App:**
    ```bash
-   Open index.html in your preferred web browser.
+     Open index.html in your preferred web browser.
    ```
